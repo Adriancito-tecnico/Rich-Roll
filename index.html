@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Sorpresa!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Comic Sans MS', 'Arial Black', Impact, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Contenedor del video en el fondo */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* Evita que pausen el video fácilmente */
+        }
+
+        .video-background iframe {
+            width: 100vw;
+            height: 100vh;
+            transform: scale(1.2); /* Hace zoom para ocultar bordes de YouTube */
+        }
+
+        /* Pantalla inicial para forzar el audio (los navegadores bloquean el autoplay con sonido sin clic) */
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            color: white;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #overlay h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #00ff88;
+        }
+
+        #overlay button {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+            transition: transform 0.2s;
+        }
+
+        #overlay button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Textos locos dando vueltas */
+        .floating-text {
+            position: fixed;
+            z-index: 10;
+            font-weight: bold;
+            text-shadow: 3px 3px 0px #000, -3px -3px 0px #000, 3px -3px 0px #000, -3px 3px 0px #000;
+            user-select: none;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .spin-1 {
+            top: 15%;
+            left: 10%;
+            font-size: 3rem;
+            color: #ff0055;
+            animation: spinAndMove1 4s infinite linear;
+        }
+
+        .spin-2 {
+            bottom: 20%;
+            right: 10%;
+            font-size: 2.5rem;
+            color: #00ffff;
+            animation: spinAndMove2 3.5s infinite linear;
+        }
+
+        .spin-3 {
+            top: 45%;
+            left: 50%;
+            font-size: 4rem;
+            color: #ffff00;
+            animation: centerZoomSpin 2s infinite alternate ease-in-out;
+        }
+
+        .spin-4 {
+            top: 70%;
+            left: 15%;
+            font-size: 2.2rem;
+            color: #ff00ff;
+            animation: spinAndMove1 5s infinite reverse linear;
+        }
+
+        .spin-5 {
+            top: 20%;
+            right: 15%;
+            font-size: 2.8rem;
+            color: #00ff00;
+            animation: spinAndMove2 4.5s infinite reverse linear;
+        }
+
+        /* Animaciones */
+        @keyframes spinAndMove1 {
+            0% { transform: rotate(0deg) translate(30px) rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) translate(30px) rotate(-180deg) scale(1.3); }
+            100% { transform: rotate(360deg) translate(30px) rotate(-360deg) scale(1); }
+        }
+
+        @keyframes spinAndMove2 {
+            0% { transform: rotate(0deg) scale(0.8); }
+            50% { transform: rotate(180deg) scale(1.4); }
+            100% { transform: rotate(360deg) scale(0.8); }
+        }
+
+        @keyframes centerZoomSpin {
+            0% { transform: translate(-50%, -50%) rotate(-15deg) scale(0.8); }
+            100% { transform: translate(-50%, -50%) rotate(15deg) scale(1.3); }
+        }
+
+        /* Efecto de luces parpadeantes suaves */
+        .disco-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            animation: disco 1s infinite;
+            opacity: 0.25;
+        }
+
+        @keyframes disco {
+            0% { background-color: red; }
+            25% { background-color: blue; }
+            50% { background-color: lime; }
+            75% { background-color: yellow; }
+            100% { background-color: magenta; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla cebo para activar el sonido -->
+    <div id="overlay" onclick="startRickRoll()">
+        <h1>🎁 ¡Tienes un mensaje secreto! 🎁</h1>
+        <p style="margin-bottom: 25px; color: #aaa;">Haz clic en el botón para desbloquear el contenido</p>
+        <button>ABRIR AHORA</button>
+    </div>
+
+    <!-- Filtro de colores -->
+    <div class="disco-overlay"></div>
+
+    <!-- Video de YouTube -->
+    <div class="video-background">
+        <div id="player"></div>
+    </div>
+
+    <!-- Textos girando -->
+    <div class="floating-text spin-1">¡RICKROLEADO! 🕺</div>
+    <div class="floating-text spin-2">NEVER GONNA GIVE YOU UP 🎶</div>
+    <div class="floating-text spin-3">¡CAÍSTE! 😂</div>
+    <div class="floating-text spin-4">TE LA CREÍSTE 🤣</div>
+    <div class="floating-text spin-5">¡TROLEADO! 🔥</div>
+
+    <!-- API de YouTube para controlar la reproducción con sonido -->
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                videoId: 'dQw4w9WgXcQ', // ID oficial del RickRoll
+                playerVars: {
+                    'autoplay': 0,
+                    'controls': 0,
+                    'showinfo': 0,
+                    'rel': 0,
+                    'loop': 1,
+                    'playlist': 'dQw4w9WgXcQ', // Necesario para que el bucle funcione
+                    'modestbranding': 1
+                }
+            });
+        }
+
+        function startRickRoll() {
+            // Oculta la pantalla de inicio
+            document.getElementById('overlay').style.display = 'none';
+            
+            // Inicia el video con volumen al máximo
+            if (player && player.playVideo) {
+                player.unMute();
+                player.setVolume(100);
+                player.playVideo();
+            }
+        }
+    </script>
+</body>
+</html>
